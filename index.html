@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Верификация сертификата — EnglishGo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --accent: #2563eb;
+    --accent-light: #eff6ff;
+    --text: #0f172a;
+    --sub: #64748b;
+    --border: #e2e8f0;
+    --bg: #f8fafc;
+    --white: #ffffff;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --green-border: #bbf7d0;
+    --red: #dc2626;
+    --red-bg: #fef2f2;
+    --red-border: #fecaca;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 40px;
+    animation: up 0.4s ease both;
+  }
+
+  .logo-mark {
+    width: 32px;
+    height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-mark svg { display: block; }
+
+  .logo-text {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+
+  .logo-text span { color: var(--accent); }
+
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 500px;
+    overflow: hidden;
+    animation: up 0.45s ease 0.05s both;
+  }
+
+  .card-top {
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .card-top-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--accent-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .card-top-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .card-top-sub {
+    font-size: 12px;
+    color: var(--sub);
+    margin-top: 1px;
+  }
+
+  .card-body { padding: 28px; }
+
+  /* Loader */
+  .loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+  }
+
+  .spin {
+    width: 28px; height: 28px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  .loader p { font-size: 13px; color: var(--sub); }
+
+  /* Status */
+  .status {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid;
+    margin-bottom: 24px;
+  }
+
+  .status.ok { background: var(--green-bg); border-color: var(--green-border); }
+  .status.err { background: var(--red-bg); border-color: var(--red-border); }
+
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+
+  .ok .status-dot { background: var(--green); }
+  .err .status-dot { background: var(--red); }
+
+  .status strong { font-size: 13px; font-weight: 500; display: block; }
+  .ok strong { color: var(--green); }
+  .err strong { color: var(--red); }
+  .status small { font-size: 11px; color: var(--sub); }
+
+  /* Name */
+  .cert-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 30px;
+    color: var(--text);
+    line-height: 1.15;
+    margin-bottom: 4px;
+  }
+
+  .cert-course {
+    font-size: 13px;
+    color: var(--sub);
+    margin-bottom: 22px;
+    font-weight: 400;
+  }
+
+  .sep { height: 1px; background: var(--border); margin: 18px 0; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .field label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--sub);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  .field .val {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .id-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 14px;
+  }
+
+  .id-row label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--sub);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  .id-row .id-val {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .verified-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 10px;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 99px;
+    letter-spacing: 0.3px;
+  }
+
+  /* Empty states */
+  .empty { text-align: center; padding: 8px 0 4px; }
+  .empty .icon { font-size: 36px; margin-bottom: 12px; }
+  .empty h2 { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--text); margin-bottom: 6px; }
+  .empty p { font-size: 13px; color: var(--sub); line-height: 1.6; }
+  .empty code { font-size: 11px; background: var(--bg); padding: 3px 7px; border-radius: 4px; border: 1px solid var(--border); }
+
+  .footer {
+    margin-top: 28px;
+    font-size: 11px;
+    color: #94a3b8;
+    animation: up 0.45s ease 0.1s both;
+  }
+
+  @keyframes up { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo-mark">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <path d="M3 9l4.5 4.5L15 5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <div class="logo-text">English<span>Go</span></div>
+</div>
+
+<div class="card">
+  <div class="card-top">
+    <div class="card-top-icon">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M9 2L2.5 4.5v5.5c0 4 2.9 7.5 6.5 8.5 3.6-1 6.5-4.5 6.5-8.5V4.5L9 2z" stroke="#2563eb" stroke-width="1.4" stroke-linejoin="round"/>
+        <path d="M6 9l2 2 4-4" stroke="#2563eb" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div>
+      <div class="card-top-label">Верификация сертификата</div>
+      <div class="card-top-sub">englishgokz.github.io/certificates</div>
+    </div>
+  </div>
+
+  <div class="card-body" id="body">
+    <div class="loader">
+      <div class="spin"></div>
+      <p>Проверяем...</p>
+    </div>
+  </div>
+</div>
+
+<div class="footer">EnglishGo · Центр языкового образования</div>
+
+<script>
+const GITHUB_USER = 'englishgokz';
+const REPO_NAME = 'certificates';
+const DATA_URL = `https://${GITHUB_USER}.github.io/${REPO_NAME}/certificates.json`;
+
+const id = new URLSearchParams(window.location.search).get('id');
+const body = document.getElementById('body');
+
+function renderCert(cert, id) {
+  const isRevoked = cert.status === 'revoked';
+  return `
+    <div class="status ${isRevoked ? 'err' : 'ok'}">
+      <div class="status-dot"></div>
+      <div>
+        <strong>${isRevoked ? 'Сертификат отозван' : 'Сертификат действителен'}</strong>
+        <small>${isRevoked ? 'Данный сертификат был аннулирован' : 'Проверено · ' + new Date().toLocaleDateString('ru-RU', {day:'numeric',month:'long',year:'numeric'})}</small>
+      </div>
+    </div>
+
+    <div class="cert-name">${cert.name}</div>
+    <div class="cert-course">${cert.course}</div>
+
+    <div class="grid">
+      <div class="field"><label>Дата выдачи</label><div class="val">${cert.date}</div></div>
+      <div class="field"><label>Организация</label><div class="val">${cert.org}</div></div>
+      ${cert.hours ? `<div class="field"><label>Объём</label><div class="val">${cert.hours} часов</div></div>` : ''}
+      ${cert.level ? `<div class="field"><label>Уровень</label><div class="val">${cert.level}</div></div>` : ''}
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="id-row">
+      <div>
+        <label>ID сертификата</label>
+        <div class="id-val">${id}</div>
+      </div>
+      <div class="verified-chip">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="#2563eb" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Verified
+      </div>
+    </div>
+  `;
+}
+
+async function init() {
+  if (!id) {
+    body.innerHTML = `<div class="empty"><div class="icon">📋</div><h2>Нет ID сертификата</h2><p>Отсканируйте QR-код на сертификате.<br>Или добавьте к адресу: <code>?id=CERT-2024-001</code></p></div>`;
+    return;
+  }
+  try {
+    const res = await fetch(DATA_URL + '?t=' + Date.now());
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    const cert = data[id];
+    body.innerHTML = cert
+      ? renderCert(cert, id)
+      : `<div class="empty"><div class="icon">🔍</div><h2>Сертификат не найден</h2><p>ID <strong>${id}</strong> отсутствует в нашей базе.<br>Проверьте QR-код или обратитесь в EnglishGo.</p></div>`;
+  } catch {
+    body.innerHTML = `<div class="empty"><div class="icon">⚠️</div><h2>Ошибка загрузки</h2><p>Не удалось подключиться к базе.<br>Попробуйте позже.</p></div>`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>

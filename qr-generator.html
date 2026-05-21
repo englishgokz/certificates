@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR-генератор — EnglishGo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --accent: #2563eb; --text: #0f172a; --sub: #64748b; --border: #e2e8f0; --bg: #f8fafc; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 32px; max-width: 420px; width: 100%; }
+  h1 { font-size: 18px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+  .sub { font-size: 13px; color: var(--sub); margin-bottom: 28px; }
+  label { font-size: 11px; font-weight: 500; color: var(--sub); letter-spacing: 0.5px; text-transform: uppercase; display: block; margin-bottom: 6px; }
+  input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; margin-bottom: 16px; outline: none; transition: border 0.15s; color: var(--text); }
+  input:focus { border-color: var(--accent); }
+  input[readonly] { background: var(--bg); color: var(--sub); }
+  button { width: 100%; padding: 11px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; }
+  button:hover { background: #1d4ed8; }
+  .result { margin-top: 28px; display: none; }
+  .sep { height: 1px; background: var(--border); margin: 20px 0; }
+  .qr-wrap { display: flex; justify-content: center; margin-bottom: 16px; }
+  #qrcode { padding: 12px; background: #fff; border: 1px solid var(--border); border-radius: 10px; display: inline-block; }
+  .url-box { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-family: monospace; font-size: 11px; color: var(--sub); word-break: break-all; margin-bottom: 14px; }
+  .dl { display: block; text-align: center; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text); cursor: pointer; }
+  .dl:hover { background: var(--bg); }
+  .hint { font-size: 11px; color: var(--sub); text-align: center; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Генератор QR-кодов</h1>
+  <p class="sub">Создайте QR для каждого сертификата EnglishGo</p>
+
+  <label>Аккаунт GitHub</label>
+  <input type="text" value="englishgokz" readonly>
+
+  <label>ID сертификата</label>
+  <input type="text" id="certId" placeholder="CERT-2024-001" oninput="preview()">
+
+  <label>Ссылка верификации</label>
+  <input type="text" id="urlPreview" readonly placeholder="Введите ID выше...">
+
+  <button onclick="generate()">Создать QR-код</button>
+
+  <div class="result" id="result">
+    <div class="sep"></div>
+    <div class="qr-wrap"><div id="qrcode"></div></div>
+    <div class="url-box" id="urlBox"></div>
+    <div class="dl" onclick="downloadQR()">⬇ Скачать PNG (200×200)</div>
+    <div class="hint">Вставьте в шаблон сертификата в Word или Canva</div>
+  </div>
+</div>
+
+<script>
+const BASE = 'https://englishgokz.github.io/certificates/?id=';
+
+function preview() {
+  const id = document.getElementById('certId').value.trim();
+  document.getElementById('urlPreview').value = id ? BASE + id : '';
+}
+
+function generate() {
+  const id = document.getElementById('certId').value.trim();
+  if (!id) { alert('Введите ID сертификата'); return; }
+  const url = BASE + id;
+  document.getElementById('urlBox').textContent = url;
+  const qrDiv = document.getElementById('qrcode');
+  qrDiv.innerHTML = '';
+  new QRCode(qrDiv, { text: url, width: 180, height: 180, colorDark: '#0f172a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
+  document.getElementById('result').style.display = 'block';
+}
+
+function downloadQR() {
+  const img = document.querySelector('#qrcode img');
+  if (!img) return;
+  const a = document.createElement('a');
+  a.href = img.src;
+  a.download = document.getElementById('certId').value + '_QR.png';
+  a.click();
+}
+</script>
+</body>
+</html>
