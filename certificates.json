@@ -25,5 +25,14 @@
     "hours": "80",
     "level": "Academic",
     "status": "valid"
+  },
+    "CERT-2024-004": {
+    "name": "Dilshat Yesenzhanova",
+    "course": "EnglishGO - Spoken English",
+    "date": "May 21st, 2026",
+    "org": "EnglishGo",
+    "hours": "100+",
+    "level": "B1 — Intermediate",
+    "status": "valid"
   }
 }
