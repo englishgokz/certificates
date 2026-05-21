@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Верификация сертификата — EnglishGo</title>
+<title>Certificate Verification — EnglishGo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
@@ -275,7 +275,7 @@
       </svg>
     </div>
     <div>
-      <div class="card-top-label">Верификация сертификата</div>
+      <div class="card-top-label">Certificate Verification</div>
       <div class="card-top-sub">englishgokz.github.io/certificates</div>
     </div>
   </div>
@@ -283,12 +283,12 @@
   <div class="card-body" id="body">
     <div class="loader">
       <div class="spin"></div>
-      <p>Проверяем...</p>
+      <p>Verifying...</p>
     </div>
   </div>
 </div>
 
-<div class="footer">EnglishGo · Центр языкового образования</div>
+<div class="footer">EnglishGo · Language Education Centre</div>
 
 <script>
 const GITHUB_USER = 'englishgokz';
@@ -304,8 +304,8 @@ function renderCert(cert, id) {
     <div class="status ${isRevoked ? 'err' : 'ok'}">
       <div class="status-dot"></div>
       <div>
-        <strong>${isRevoked ? 'Сертификат отозван' : 'Сертификат действителен'}</strong>
-        <small>${isRevoked ? 'Данный сертификат был аннулирован' : 'Проверено · ' + new Date().toLocaleDateString('ru-RU', {day:'numeric',month:'long',year:'numeric'})}</small>
+        <strong>${isRevoked ? 'Certificate has been revoked' : 'Certificate is valid'}</strong>
+        <small>${isRevoked ? 'This certificate has been revoked' : 'Verified · ' + new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})}</small>
       </div>
     </div>
 
@@ -313,17 +313,17 @@ function renderCert(cert, id) {
     <div class="cert-course">${cert.course}</div>
 
     <div class="grid">
-      <div class="field"><label>Дата выдачи</label><div class="val">${cert.date}</div></div>
-      <div class="field"><label>Организация</label><div class="val">${cert.org}</div></div>
-      ${cert.hours ? `<div class="field"><label>Объём</label><div class="val">${cert.hours} часов</div></div>` : ''}
-      ${cert.level ? `<div class="field"><label>Уровень</label><div class="val">${cert.level}</div></div>` : ''}
+      <div class="field"><label>Issue date</label><div class="val">${cert.date}</div></div>
+      <div class="field"><label>Institution</label><div class="val">${cert.org}</div></div>
+      ${cert.hours ? `<div class="field"><label>Duration</label><div class="val">${cert.hours} hours</div></div>` : ''}
+      ${cert.level ? `<div class="field"><label>Level</label><div class="val">${cert.level}</div></div>` : ''}
     </div>
 
     <div class="sep"></div>
 
     <div class="id-row">
       <div>
-        <label>ID сертификата</label>
+        <label>Certificate ID</label>
         <div class="id-val">${id}</div>
       </div>
       <div class="verified-chip">
@@ -336,7 +336,7 @@ function renderCert(cert, id) {
 
 async function init() {
   if (!id) {
-    body.innerHTML = `<div class="empty"><div class="icon">📋</div><h2>Нет ID сертификата</h2><p>Отсканируйте QR-код на сертификате.<br>Или добавьте к адресу: <code>?id=CERT-2024-001</code></p></div>`;
+    body.innerHTML = `<div class="empty"><div class="icon">📋</div><h2>No Certificate ID</h2><p>Scan the QR code on the certificate.<br>Or add to the URL: <code>?id=CERT-2024-001</code></p></div>`;
     return;
   }
   try {
@@ -346,9 +346,9 @@ async function init() {
     const cert = data[id];
     body.innerHTML = cert
       ? renderCert(cert, id)
-      : `<div class="empty"><div class="icon">🔍</div><h2>Сертификат не найден</h2><p>ID <strong>${id}</strong> отсутствует в нашей базе.<br>Проверьте QR-код или обратитесь в EnglishGo.</p></div>`;
+      : `<div class="empty"><div class="icon">🔍</div><h2>Certificate not found</h2><p>ID <strong>${id}</strong> was not found in our database.<br>Please check the QR code or contact EnglishGo.</p></div>`;
   } catch {
-    body.innerHTML = `<div class="empty"><div class="icon">⚠️</div><h2>Ошибка загрузки</h2><p>Не удалось подключиться к базе.<br>Попробуйте позже.</p></div>`;
+    body.innerHTML = `<div class="empty"><div class="icon">⚠️</div><h2>Loading error</h2><p>Could not connect to the database.<br>Please try again later.</p></div>`;
   }
 }
 
