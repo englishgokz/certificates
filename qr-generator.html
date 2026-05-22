@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QR-генератор — EnglishGo</title>
+<title>QR Generator — EnglishGo</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root { --accent: #2563eb; --text: #0f172a; --sub: #64748b; --border: #e2e8f0; --bg: #f8fafc; }
@@ -14,70 +14,200 @@
   h1 { font-size: 18px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
   .sub { font-size: 13px; color: var(--sub); margin-bottom: 28px; }
   label { font-size: 11px; font-weight: 500; color: var(--sub); letter-spacing: 0.5px; text-transform: uppercase; display: block; margin-bottom: 6px; }
-  input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; margin-bottom: 16px; outline: none; transition: border 0.15s; color: var(--text); }
-  input:focus { border-color: var(--accent); }
+  input[type=text] { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; margin-bottom: 16px; outline: none; transition: border 0.15s; color: var(--text); }
+  input[type=text]:focus { border-color: var(--accent); }
   input[readonly] { background: var(--bg); color: var(--sub); }
-  button { width: 100%; padding: 11px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; }
-  button:hover { background: #1d4ed8; }
+
+  .upload-area {
+    border: 1.5px dashed var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    margin-bottom: 16px;
+    transition: border-color 0.15s, background 0.15s;
+    position: relative;
+  }
+  .upload-area:hover { border-color: var(--accent); background: #f0f6ff; }
+  .upload-area input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-area .icon { font-size: 24px; margin-bottom: 6px; }
+  .upload-area p { font-size: 13px; color: var(--sub); }
+  .upload-area p strong { color: var(--accent); }
+
+  .logo-preview { display: none; align-items: center; gap: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; }
+  .logo-preview img { width: 36px; height: 36px; object-fit: contain; border-radius: 4px; }
+  .logo-preview span { font-size: 13px; color: var(--text); flex: 1; }
+  .logo-preview button { background: none; border: none; color: var(--sub); cursor: pointer; font-size: 18px; line-height: 1; padding: 0 4px; }
+  .logo-preview button:hover { color: #dc2626; }
+
+  button.primary { width: 100%; padding: 11px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; }
+  button.primary:hover { background: #1d4ed8; }
+
   .result { margin-top: 28px; display: none; }
   .sep { height: 1px; background: var(--border); margin: 20px 0; }
   .qr-wrap { display: flex; justify-content: center; margin-bottom: 16px; }
-  #qrcode { padding: 12px; background: #fff; border: 1px solid var(--border); border-radius: 10px; display: inline-block; }
+  #qr-canvas { border-radius: 10px; border: 1px solid var(--border); display: block; }
   .url-box { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-family: monospace; font-size: 11px; color: var(--sub); word-break: break-all; margin-bottom: 14px; }
-  .dl { display: block; text-align: center; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text); cursor: pointer; }
+  .dl { display: block; text-align: center; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text); cursor: pointer; background: #fff; }
   .dl:hover { background: var(--bg); }
   .hint { font-size: 11px; color: var(--sub); text-align: center; margin-top: 8px; }
 </style>
 </head>
 <body>
 <div class="card">
-  <h1>Генератор QR-кодов</h1>
-  <p class="sub">Создайте QR для каждого сертификата EnglishGo</p>
+  <h1>QR Code Generator</h1>
+  <p class="sub">Create a verification QR for each EnglishGo certificate</p>
 
-  <label>Аккаунт GitHub</label>
+  <label>GitHub account</label>
   <input type="text" value="englishgokz" readonly>
 
-  <label>ID сертификата</label>
-  <input type="text" id="certId" placeholder="CERT-2024-001" oninput="preview()">
+  <label>Certificate ID</label>
+  <input type="text" id="certId" placeholder="CERT-2026-001" oninput="previewUrl()">
 
-  <label>Ссылка верификации</label>
-  <input type="text" id="urlPreview" readonly placeholder="Введите ID выше...">
+  <label>Verification URL</label>
+  <input type="text" id="urlPreview" readonly placeholder="Enter Certificate ID above...">
 
-  <button onclick="generate()">Создать QR-код</button>
+  <label>Logo (optional)</label>
+  <div class="upload-area" id="uploadArea">
+    <input type="file" accept="image/*" id="logoInput" onchange="handleLogo(event)">
+    <div class="icon">🖼</div>
+    <p><strong>Click to upload</strong> your logo</p>
+    <p>PNG with transparent background recommended</p>
+  </div>
+
+  <div class="logo-preview" id="logoPreview">
+    <img id="logoThumb" src="" alt="logo">
+    <span id="logoName">logo.png</span>
+    <button onclick="removeLogo()" title="Remove">×</button>
+  </div>
+
+  <button class="primary" onclick="generate()">Generate QR Code</button>
 
   <div class="result" id="result">
     <div class="sep"></div>
-    <div class="qr-wrap"><div id="qrcode"></div></div>
+    <div class="qr-wrap">
+      <canvas id="qr-canvas"></canvas>
+    </div>
     <div class="url-box" id="urlBox"></div>
-    <div class="dl" onclick="downloadQR()">⬇ Скачать PNG (200×200)</div>
-    <div class="hint">Вставьте в шаблон сертификата в Word или Canva</div>
+    <div class="dl" onclick="downloadQR()">⬇ Download PNG (400×400)</div>
+    <div class="hint">Insert into your certificate template in Word or Canva</div>
   </div>
 </div>
 
 <script>
 const BASE = 'https://englishgokz.github.io/certificates/?id=';
+let logoDataUrl = null;
 
-function preview() {
+function previewUrl() {
   const id = document.getElementById('certId').value.trim();
   document.getElementById('urlPreview').value = id ? BASE + id : '';
 }
 
+function handleLogo(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    logoDataUrl = ev.target.result;
+    document.getElementById('logoThumb').src = logoDataUrl;
+    document.getElementById('logoName').textContent = file.name;
+    document.getElementById('logoPreview').style.display = 'flex';
+    document.getElementById('uploadArea').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeLogo() {
+  logoDataUrl = null;
+  document.getElementById('logoPreview').style.display = 'none';
+  document.getElementById('uploadArea').style.display = 'block';
+  document.getElementById('logoInput').value = '';
+}
+
 function generate() {
   const id = document.getElementById('certId').value.trim();
-  if (!id) { alert('Введите ID сертификата'); return; }
+  if (!id) { alert('Please enter a Certificate ID'); return; }
+
   const url = BASE + id;
   document.getElementById('urlBox').textContent = url;
-  const qrDiv = document.getElementById('qrcode');
-  qrDiv.innerHTML = '';
-  new QRCode(qrDiv, { text: url, width: 180, height: 180, colorDark: '#0f172a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
-  document.getElementById('result').style.display = 'block';
+
+  const SIZE = 400;
+  const canvas = document.getElementById('qr-canvas');
+  canvas.width = SIZE;
+  canvas.height = SIZE;
+  const ctx = canvas.getContext('2d');
+
+  // Generate QR into a temp div
+  const tmp = document.createElement('div');
+  document.body.appendChild(tmp);
+  const qr = new QRCode(tmp, {
+    text: url,
+    width: SIZE,
+    height: SIZE,
+    colorDark: '#0f172a',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H
+  });
+
+  setTimeout(() => {
+    const qrImg = tmp.querySelector('img');
+    const qrBase = qrImg ? qrImg.src : tmp.querySelector('canvas').toDataURL();
+    document.body.removeChild(tmp);
+
+    const base = new Image();
+    base.onload = () => {
+      ctx.clearRect(0, 0, SIZE, SIZE);
+      ctx.drawImage(base, 0, 0, SIZE, SIZE);
+
+      if (logoDataUrl) {
+        const logo = new Image();
+        logo.onload = () => {
+          // Logo occupies 22% of QR size
+          const logoSize = SIZE * 0.22;
+          const padding = 8;
+          const boxSize = logoSize + padding * 2;
+          const x = (SIZE - boxSize) / 2;
+          const y = (SIZE - boxSize) / 2;
+
+          // White rounded background
+          ctx.save();
+          roundRect(ctx, x, y, boxSize, boxSize, 10);
+          ctx.fillStyle = '#ffffff';
+          ctx.fill();
+          ctx.restore();
+
+          // Draw logo centered
+          ctx.drawImage(logo, x + padding, y + padding, logoSize, logoSize);
+
+          document.getElementById('result').style.display = 'block';
+        };
+        logo.src = logoDataUrl;
+      } else {
+        document.getElementById('result').style.display = 'block';
+      }
+    };
+    base.src = qrBase;
+  }, 100);
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
 }
 
 function downloadQR() {
-  const img = document.querySelector('#qrcode img');
-  if (!img) return;
+  const canvas = document.getElementById('qr-canvas');
   const a = document.createElement('a');
-  a.href = img.src;
+  a.href = canvas.toDataURL('image/png');
   a.download = document.getElementById('certId').value + '_QR.png';
   a.click();
 }
